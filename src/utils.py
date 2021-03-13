@@ -44,8 +44,8 @@ class BatchGradientDescent(Optimization):
         return weights - delta * learning_rate
 
 ### Miscellaneous ###
-def show_progress(epoch, max_epoch, loss, bar_size=40):
-    prog = (epoch + 1) / max_epoch
+def show_progress(iteration, max_iteration, loss, bar_size=40):
+    prog = (iteration + 1) / max_iteration
     loss_str = 'Loss: ' + str(loss)
     sys.stdout.write('\r')
     sys.stdout.write(f"[{'=' * int(bar_size * prog):{bar_size}s}] {int(100 * prog)}%  {loss_str}")

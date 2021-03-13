@@ -75,9 +75,9 @@ print('sklearn\'s R-squared:', skl_score)
 print('Weights:', np.squeeze(lr.weights.T))
 
 # Plot loss history
-plt.title('Loss against epoch')
+plt.title('Loss against iterations')
 plt.plot(np.arange(1, loss_hist.shape[0] + 1), loss_hist)
-plt.xlabel('Epochs')
+plt.xlabel('Iterations')
 plt.ylabel('Loss (MSE)')
 plt.show()
 

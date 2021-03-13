@@ -8,7 +8,7 @@ class LinearRegression:
     def __init__(self):
         self.weights = None
 
-    def train(self, X, y, epochs=5000, learning_rate=0.01, display=False):
+    def train(self, X, y, iterations=5000, learning_rate=0.01, display=False):
         '''
 
         Input parameters:
@@ -23,7 +23,7 @@ class LinearRegression:
         opt = BatchGradientDescent()
         loss_hist = np.zeros((1,0))
 
-        for i in range(epochs):
+        for i in range(iterations):
             y_hat = X.dot(self.weights)
             loss = loss_func.loss(y, y_hat)
             loss_hist = np.append(loss_hist, loss)
