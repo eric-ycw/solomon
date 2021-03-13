@@ -6,7 +6,7 @@ from src.utils import *
 
 class LinearRegression:
 
-    def train(self, X, y, weights, epochs=2000, learning_rate=0.01, display=False):
+    def train(self, X, y, weights, epochs=5000, learning_rate=0.01, display=False):
         '''
 
         Input parameters:
