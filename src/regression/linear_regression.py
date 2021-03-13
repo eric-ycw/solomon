@@ -6,17 +6,38 @@ from src.utils import *
 
 class LinearRegression:
 
-    def simple_linear_regression(self, x, y, m_hat=0, b_hat=0, epochs=5000, step=0.001, display=False):
+    def train(self, X, y, weights, epochs=2000, learning_rate=0.01, display=False):
+        '''
+
+        Input parameters:
+        X: (mxn) array where m is the number of training examples and n is the number of features
+        y: (mx1) array with target values
+        weights: (1xn) array of fitting parameters
+
+        '''
+
+        loss_func = MeanSquaredError()
+        opt = BatchGradientDescent()
+        loss_hist = np.zeros((1,0))
+
         for i in range(epochs):
-            y_hat = m_hat * x + b_hat
-            cost = mse(y, y_hat)
+            y_hat = X.dot(weights)
+            loss = loss_func.loss(y, y_hat)
+            loss_hist = np.append(loss_hist, loss)
+
+            errors = loss_func.gradient(y, y_hat)
+            weights = opt.optimize(X, errors, weights, learning_rate)
             if display:
-                show_progress(i, epochs, cost)
-            params = gradient_descent(
-            np.array([
-                -2 * np.multiply(x, y - y_hat).mean(),
-                -2 * (y - y_hat).mean()
-            ]),
-            np.array([m_hat, b_hat]), step)
-            m_hat, b_hat = params[0], params[1]
-        return params, cost
+                show_progress(i, epochs, loss)
+
+        if display:
+            print('\n')
+
+        return weights, loss_hist, loss
+
+    def predict(self, X, y, weights):
+        loss_func = MeanSquaredError()
+        y_hat = X.dot(weights)
+        loss = loss_func.loss(y, y_hat)
+
+        return y_hat, loss
