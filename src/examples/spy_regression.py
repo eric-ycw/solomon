@@ -22,19 +22,17 @@ df.set_index('Date',inplace=True)
 df = df.sort_values('Date',ascending=True)
 
 # We generate some test features, including:
-# 1. 5-day simple moving average
-# 2. 5-day standard deviation
-# 3. Daily high-low % change
-# 4. Daily volume % change
+# 1. 90-day simple moving average
+# 2. 30-day rolling standard deviation
+# 3. 5-day rolling standard deviation
+# 4. Daily high-low % change
+# 5. Daily volume % change
 
-df['SMA_5'] = df['Adj Close'].rolling(5).mean()
+df['SMA_90'] = df['Adj Close'].rolling(90).mean()
+df['STD_30'] = df['Adj Close'].rolling(30).std()
 df['STD_5'] = df['Adj Close'].rolling(5).std()
 df['High-low pct_change'] = (df['High'] - df['Low']).pct_change()
 df['Volume pct_change'] = df['Volume'].pct_change()
-
-# Shift up the adjusted close column by one
-df['Adj Close'] = df['Adj Close'].shift(-1)
-df = df.rename(columns={"Adj Close" : "Next Adj Close"})
 
 df = df.dropna()
 
@@ -44,10 +42,13 @@ y = df.iloc[:,5:6]
 X_train, y_train = X.sample(frac=0.8, random_state=20), y.sample(frac=0.8, random_state=20)
 X_test, y_test = X.drop(X_train.index), y.drop(y_train.index)
 
+# Save SMA90 for plotting later
+X_test_sma_90 = X_test['SMA_90']
+
 # Convert into ndarrays
 X_train, y_train, X_test, y_test = X_train.values, y_train.values, X_test.values, y_test.values
 
-# We use mean normalization to rescale the features set
+# We use mean normalization to rescale the features set and the target variables
 mean_norm = MeanNormalization()
 X_train, X_test = mean_norm.normalize(X_train), mean_norm.normalize(X_test)
 
@@ -61,16 +62,32 @@ loss_hist, loss = lr.train(X_train, y_train, display=True)
 
 # Predict the close prices for the test set and calculate our loss and R-squared
 y_hat, loss = lr.predict(X_test, y_test)
-print('Testing set loss: ', loss)
+print('Testing set loss:', loss)
 r_squared = r2_score(y_test, y_hat)
-print('Our R-squared: ', r_squared)
+print('Our R-squared:', r_squared)
 
 # Train and fit using sklearn
 skl_lr = skl_LR()
 skl_lr.fit(X_train, y_train)
 skl_score = skl_lr.score(X_test, y_test)
-print('sklearn\'s R-squared: ', skl_score)
+print('sklearn\'s R-squared:', skl_score)
 
+print('Weights:', np.squeeze(lr.weights.T))
+
+# Plot loss history
 plt.title('Loss against epoch')
 plt.plot(np.arange(1, loss_hist.shape[0] + 1), loss_hist)
+plt.xlabel('Epochs')
+plt.ylabel('Loss (MSE)')
+plt.show()
+
+# Plot predicted vs actual SPY closing prices
+y_test, y_hat = np.squeeze(y_test.T), np.squeeze(y_hat.T)
+plt.title('Predicted vs Actual SPY Closing Prices')
+plt.plot(np.arange(1, y_test.shape[0] + 1), y_test, label="Actual")
+plt.plot(np.arange(1, y_hat.shape[0] + 1), y_hat, label="Predicted")
+plt.plot(np.arange(1, X_test_sma_90.shape[0] + 1), X_test_sma_90, label="SMA90")
+plt.legend(loc="upper left")
+plt.xlabel('Days')
+plt.ylabel('Adj Close')
 plt.show()
