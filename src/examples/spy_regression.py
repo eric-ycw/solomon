@@ -12,7 +12,7 @@ import os
 from src.regression.linear_regression import LinearRegression
 from src.utils import *
 
-# Using multivariate linear regression to predict the close price of SPY
+# Using multiple linear regression to predict the close price of SPY
 
 df = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/spy_regression.csv"))
 
@@ -54,15 +54,17 @@ X_test = np.hstack((np.ones((X_test.shape[0], 1)), X_test))
 # We initialize weights as zeros
 weights = np.zeros((X_train.shape[1], 1))
 
+# Train our weights and get the loss history
 lr = LinearRegression()
 weights, loss_hist, loss = lr.train(X_train, y_train, weights, display=True)
 
+# Predict the close prices for the test set and calculate our loss and R-squared
 y_hat, loss = lr.predict(X_test, y_test, weights)
 print('Testing set loss: ', loss)
-
 r_squared = r2_score(y_test, y_hat)
 print('Our R-squared: ', r_squared)
 
+# Train and fit using sklearn
 skl_lr = skl_LR()
 skl_lr.fit(X_train, y_train)
 skl_score = skl_lr.score(X_test, y_test)
