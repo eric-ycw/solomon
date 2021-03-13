@@ -12,7 +12,7 @@ import os
 from src.regression.linear_regression import LinearRegression
 from src.utils import *
 
-# Using multiple linear regression to predict the close price of SPY
+# Using multiple linear regression to predict the closing price of SPY on the next day
 
 df = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/spy_regression.csv"))
 
@@ -31,6 +31,10 @@ df['SMA_5'] = df['Adj Close'].rolling(5).mean()
 df['STD_5'] = df['Adj Close'].rolling(5).std()
 df['High-low pct_change'] = (df['High'] - df['Low']).pct_change()
 df['Volume pct_change'] = df['Volume'].pct_change()
+
+# Shift up the adjusted close column by one
+df['Adj Close'] = df['Adj Close'].shift(-1)
+df = df.rename(columns={"Adj Close" : "Next Adj Close"})
 
 df = df.dropna()
 
