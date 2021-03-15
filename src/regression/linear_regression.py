@@ -19,16 +19,15 @@ class LinearRegression:
         # We initialize parameters as a (1xn) array of zeros
         self.params = np.zeros((X.shape[1], 1))
 
-        loss_func = MeanSquaredError()
-        opt = BatchGradientDescent()
         loss_hist = np.zeros((1,0))
 
         for i in range(iterations):
             y_hat = X.dot(self.params)
-            loss = loss_func.loss(y, y_hat)
+            loss = MeanSquaredError.loss(y, y_hat)
             loss_hist = np.append(loss_hist, loss)
 
-            self.params = opt.optimize(X, y, y_hat, self.params, learning_rate, loss_func)
+            self.params = BatchGradientDescent.optimize(
+                X, y, y_hat, self.params, learning_rate, MeanSquaredError)
             if display:
                 show_progress(i, iterations, loss)
 
@@ -38,8 +37,7 @@ class LinearRegression:
         return loss_hist, loss
 
     def predict(self, X, y):
-        loss_func = MeanSquaredError()
         y_hat = X.dot(self.params)
-        loss = loss_func.loss(y, y_hat)
+        loss = MeanSquaredError.loss(y, y_hat)
 
         return y_hat, loss

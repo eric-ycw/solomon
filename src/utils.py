@@ -13,14 +13,19 @@ class Sigmoid(Activation):
         return self.val(x) / (1 - self.val(x))
 
 class Loss:
-    def loss(self, y, y_hat): pass
-    def gradient(self, y, y_hat): pass
+    @staticmethod
+    def loss(y, y_hat): pass
+
+    @staticmethod
+    def gradient(X, y, y_hat): pass
 
 class MeanSquaredError(Loss):
-    def loss(self, y, y_hat):
+    @staticmethod
+    def loss(y, y_hat):
         return np.square(y - y_hat).mean()
 
-    def gradient(self, X, y, y_hat):
+    @staticmethod
+    def gradient(X, y, y_hat):
         return (-2 / X.shape[0]) * X.T.dot(y - y_hat)
 
 class Normalization:
@@ -35,10 +40,12 @@ class MeanNormalization(Normalization):
         return (features - features.mean(0)) / features.std(0)
 
 class Optimization:
-    def optimize(self, features): pass
+    @staticmethod
+    def optimize(): pass
 
 class BatchGradientDescent(Optimization):
-    def optimize(self, X, y, y_hat, params, learning_rate, loss_func):
+    @staticmethod
+    def optimize(X, y, y_hat, params, learning_rate, loss_func):
         return params - loss_func.gradient(X, y, y_hat) * learning_rate
 
 ### Miscellaneous ###

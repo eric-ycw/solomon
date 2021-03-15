@@ -2,6 +2,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.linear_model import LinearRegression as skl_LR
 from sklearn.metrics import r2_score
 plt.style.use('seaborn')
@@ -12,38 +13,35 @@ import os
 from src.regression.linear_regression import LinearRegression
 from src.utils import *
 
-# Using multiple linear regression to predict the closing price of SPY on the next day
+df = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/AMZN.csv"))
+spy = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/SPY.csv"))
+wmt = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/WMT.csv"))
+ebay = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/EBAY.csv"))
+aapl = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/AAPL.csv"))
 
-df = pd.read_csv(os.path.join(os.path.dirname(__file__), "../data/spy_regression.csv"))
+df.drop(df.columns[[1, 2, 3, 4, 6]], axis=1, inplace=True)
+df.rename(columns={'Adj Close' : 'AMZN'}, inplace=True)
+df['SPY'] = spy['Adj Close']
+df['WMT'] = wmt['Adj Close']
+df['EBAY'] = ebay['Adj Close']
+df['AAPL'] = aapl['Adj Close']
 
 # We convert the date entries to datetime and fix them in place as an index
 df['Date'] = pd.to_datetime(df['Date'])
-df.set_index('Date',inplace=True)
-df = df.sort_values('Date',ascending=True)
+df.set_index('Date', inplace=True)
 
-# We generate some test features, including:
-# 1. 90-day simple moving average
-# 2. 30-day rolling standard deviation
-# 3. 5-day rolling standard deviation
-# 4. Daily high-low % change
-# 5. Daily volume % change
-
-df['SMA_90'] = df['Adj Close'].rolling(90).mean()
-df['STD_30'] = df['Adj Close'].rolling(30).std()
-df['STD_5'] = df['Adj Close'].rolling(5).std()
-df['High-low pct_change'] = (df['High'] - df['Low']).pct_change()
-df['Volume pct_change'] = df['Volume'].pct_change()
-
-df = df.dropna()
+print(df)
+plt.title('Correlation matrix')
+sns.heatmap(df.corr(), annot=True)
+plt.show()
 
 # Select the feature/target value columns, do a train-test split
-X = df.iloc[:,6:]
-y = df.iloc[:,5:6]
+X = df.iloc[:,1:]
+y = df.iloc[:,0:1]
 X_train, y_train = X.sample(frac=0.8, random_state=20), y.sample(frac=0.8, random_state=20)
 X_test, y_test = X.drop(X_train.index), y.drop(y_train.index)
 
-# Save SMA90 for plotting later
-X_test_sma_90 = X_test['SMA_90']
+X_test_spy = X_test['SPY']
 
 # Convert into ndarrays
 X_train, y_train, X_test, y_test = X_train.values, y_train.values, X_test.values, y_test.values
@@ -83,11 +81,11 @@ plt.show()
 
 # Plot predicted vs actual SPY closing prices
 y_test, y_hat = np.squeeze(y_test.T), np.squeeze(y_hat.T)
-plt.title('Predicted vs Actual SPY Closing Prices')
+plt.title('Predicted vs Actual AMZN Price')
 plt.plot(np.arange(1, y_test.shape[0] + 1), y_test, label="Actual")
 plt.plot(np.arange(1, y_hat.shape[0] + 1), y_hat, label="Predicted")
-plt.plot(np.arange(1, X_test_sma_90.shape[0] + 1), X_test_sma_90, label="SMA90")
+plt.plot(np.arange(1, X_test_spy.shape[0] + 1), X_test_spy, label="SPY")
 plt.legend(loc="upper left")
 plt.xlabel('Days')
-plt.ylabel('Adj Close')
+plt.ylabel('Price')
 plt.show()
