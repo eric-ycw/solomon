@@ -20,8 +20,8 @@ class MeanSquaredError(Loss):
     def loss(self, y, y_hat):
         return np.square(y - y_hat).mean()
 
-    def gradient(self, y, y_hat):
-        return -(y - y_hat)
+    def gradient(self, X, y, y_hat):
+        return (-2 / X.shape[0]) * X.T.dot(y - y_hat)
 
 class Normalization:
     def normalize(self, features): pass
@@ -38,10 +38,8 @@ class Optimization:
     def optimize(self, features): pass
 
 class BatchGradientDescent(Optimization):
-    def optimize(self, X, errors, weights, learning_rate):
-        delta = X.T.dot(errors) / X.shape[0]
-
-        return weights - delta * learning_rate
+    def optimize(self, X, y, y_hat, params, learning_rate, loss_func):
+        return params - loss_func.gradient(X, y, y_hat) * learning_rate
 
 ### Miscellaneous ###
 def show_progress(iteration, max_iteration, loss, bar_size=40):

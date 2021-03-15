@@ -48,7 +48,7 @@ X_test_sma_90 = X_test['SMA_90']
 # Convert into ndarrays
 X_train, y_train, X_test, y_test = X_train.values, y_train.values, X_test.values, y_test.values
 
-# We use mean normalization to rescale the features set and the target variables
+# We use mean normalization to rescale the features set
 mean_norm = MeanNormalization()
 X_train, X_test = mean_norm.normalize(X_train), mean_norm.normalize(X_test)
 
@@ -72,7 +72,7 @@ skl_lr.fit(X_train, y_train)
 skl_score = skl_lr.score(X_test, y_test)
 print('sklearn\'s R-squared:', skl_score)
 
-print('Weights:', np.squeeze(lr.weights.T))
+print('Weights:', np.squeeze(lr.params.T))
 
 # Plot loss history
 plt.title('Loss against iterations')
