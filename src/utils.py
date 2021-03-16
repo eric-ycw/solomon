@@ -35,8 +35,9 @@ class Rescale(Normalization):
     def normalize(self, features, min=-1, max=1):
         return min + (max - min) * (features - features.min(0)) / features.ptp(0)
 
-class MeanNormalization(Normalization):
-    def normalize(self, features):
+class ZScoreNormalization(Normalization):
+    @staticmethod
+    def normalize(features):
         return (features - features.mean(0)) / features.std(0)
 
 class Optimization:
